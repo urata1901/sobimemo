@@ -229,10 +229,12 @@ function render(keyword=""){
   folderContainer.innerHTML = "";
   const folderNames = ["未分類", ...folders];
   folderNames.forEach(folderName => {
-    const charsInFolder = characters.filter(c => 
-      (c.folder === folderName || (folderName === "" && folderName === "未分類")) &&
-      c.title.toLowerCase().includes(keyword)
-    );
+    const charsInFolder = characters.filter(c => {
+  if (!c.title.toLowerCase().includes(keyword)) return false;
+  if (folderName === "未分類") return !c.folder; // folder が空なら表示
+  return c.folder === folderName;             // folder があるなら表示
+});
+
     const folderDiv = document.createElement("div");
     folderDiv.className = "folder-block";
     const folderHeader = document.createElement("div");
