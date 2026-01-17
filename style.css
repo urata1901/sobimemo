@@ -1,90 +1,204 @@
+/* 全体 */
 body {
   margin: 0;
   font-family: sans-serif;
+  background: #f4f4f4;
 }
 
 header {
-  padding: 10px;
-  background: #222;
+  background: #333;
   color: white;
-  display: flex;
-  gap: 10px;
-}
-
-#container {
-  display: flex;
-}
-
-aside {
-  width: 200px;
   padding: 10px;
-  border-right: 1px solid #ccc;
-}
-
-main {
-  flex: 1;
-  padding: 10px;
-}
-
-.character {
   display: flex;
-  gap: 10px;
-  border: 1px solid #ccc;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+header button,
+header select,
+.search {
+  margin-left: 4px;
+}
+
+.search {
+  width: 100%;
+  padding: 6px;
   margin-bottom: 10px;
-  padding: 10px;
 }
 
-.character img {
-  width: 120px;
-  height: 120px;
+/* フォルダブロック */
+.folder-block {
+  background: #eaeaea;
+  padding: 6px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+}
+
+.folder-header {
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.folder-header button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* キャラカード */
+.character-card {
+  display: flex;
+  gap: 10px;
+  background: white;
+  padding: 8px;
+  margin-bottom: 8px;
+  align-items: flex-start;
+  position: relative;
+  cursor: pointer;
+}
+
+.character-card img,
+.no-image {
+  width: 80px;
+  height: 80px;
   object-fit: cover;
+  background: #ccc;
 }
 
 .character-info {
-  flex: 1;
-}
-
-.equipments {
   display: flex;
-  gap: 10px;
-  margin-top: 5px;
+  flex-direction: column;
 }
 
-.equipment {
-  border: 1px solid #aaa;
-  padding: 5px;
-  min-width: 140px;
+.character-title {
+  font-weight: bold;
+  margin-bottom: 4px;
 }
 
-.equipment strong {
-  display: block;
-  border-bottom: 1px solid #ccc;
-  margin-bottom: 3px;
+/* 装備セット */
+.home-equipment-row,
+#detailEquipment {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
+.home-equipment-set,
+#detailEquipment .home-equipment-set {
+  border: 1px solid #ccc;
+  padding: 6px;
+  min-width: 120px;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+}
+
+.home-equipment-set span {
+  margin-top: 2px;
+  background: #eee;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* 選択モード */
+.select-mode-buttons {
+  display: none;
+  margin-top: 6px;
+}
+
+body.select-mode-active .select-mode-buttons {
+  display: inline-block;
+}
+
+.character-card.selected {
+  border: 3px solid black;
+}
+
+/* カード内編集・削除ボタン */
+.character-card .card-actions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  gap: 4px;
+}
+
+.character-card .card-actions button {
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/* モーダル */
 .modal {
+  display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.5);
-  display: flex;
+  background: rgba(0, 0, 0, 0.4);
   justify-content: center;
   align-items: center;
+  overflow: auto;
+}
+
+.modal.active {
+  display: flex;
 }
 
 .modal-content {
   background: white;
   padding: 15px;
-  width: 400px;
-  max-height: 80vh;
-  overflow: auto;
+  width: 95%;
+  max-width: 420px;
 }
 
-.hidden {
-  display: none;
-}
-
-.equip-input {
+.actions {
+  margin-top: 10px;
   display: flex;
-  gap: 5px;
-  margin-bottom: 5px;
+  justify-content: space-between;
+}
+
+/* 装備セット追加 */
+.equipment-set {
+  border: 1px solid #ccc;
+  padding: 6px;
+  margin-bottom: 8px;
+}
+
+.equipment-set input {
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* キャラ詳細モーダル */
+.detail-image {
+  width: 100%;
+  max-width: 250px; /* 中サイズに制限 */
+  aspect-ratio: 1 / 1; /* 正方形 */
+  object-fit: cover;
+  margin-bottom: 8px;
+}
+
+#detailEquipment {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#detailEquipment .home-equipment-set {
+  min-width: 120px;
+  border: 1px solid #ccc;
+  padding: 6px;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
 }

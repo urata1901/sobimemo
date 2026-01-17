@@ -1,90 +1,68 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>キャラ＆装備メモ</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
-  <link rel="manifest" href="manifest.json">
-  <script src="script.js" defer></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>キャラ装備管理</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ヘッダー -->
 <header>
-  <button type="button" onclick="openCharacterModal()">＋ キャラ追加</button>
-  <button type="button" onclick="openPresetModal()">装備候補管理</button>
+  <button id="addCharacterBtn">キャラ追加</button>
+  <button id="folderBtn">フォルダ管理</button>
+  <button id="toggleSelectModeBtn">選択</button>
+  <div class="select-mode-buttons">
+    <button id="selectAllBtn">全選択</button>
+    <button id="deselectAllBtn">全解除</button>
+    <button id="bulkDeleteBtn">一括削除</button>
+    <select id="bulkMoveSelect"></select>
+    <button id="bulkMoveBtn">移動</button>
+  </div>
+  <input class="search" id="searchInput" placeholder="検索">
 </header>
 
-<div id="container">
-  <!-- フォルダ -->
-  <aside>
-    <h4>フォルダ</h4>
-    <div id="folderList"></div>
-    <button type="button" onclick="addFolder()">＋ フォルダ追加</button>
-  </aside>
+<main id="folderContainer"></main>
 
-  <!-- キャラ一覧 -->
-  <main id="characterList"></main>
+<!-- キャラ作成・編集モーダル -->
+<div class="modal" id="characterModal">
+  <div class="modal-content">
+    <form id="characterForm">
+      <h3>キャラクター情報</h3>
+      <input id="characterTitle" placeholder="キャラ名" required>
+      <input type="file" id="characterImage" accept="image/*">
+      <select id="characterFolder"></select>
+      <div id="equipmentSetsContainer"></div>
+      <button type="button" id="addEquipmentSetBtn">装備セット追加</button>
+      <textarea id="characterNote" placeholder="備考"></textarea>
+      <div class="actions">
+        <button type="submit">保存</button>
+        <button type="button" onclick="characterModal.classList.remove('active')">閉じる</button>
+      </div>
+    </form>
+  </div>
 </div>
 
-<!-- =========================
-     キャラ作成 / 編集モーダル
-========================= -->
-<div id="characterModal" class="modal hidden">
-  <div class="modal-content">
-
-    <h3>キャラ作成 / 編集</h3>
-
-    <!-- 画像 -->
-    <label>画像添付</label>
-    <input type="file" id="charImage">
-    <input id="charImageUrl" placeholder="画像URL（任意）">
-
-    <!-- タイトル -->
-    <label>キャラタイトル</label>
-    <input id="charTitle" placeholder="キャラタイトル">
-
-    <!-- フォルダ -->
-    <label>フォルダ</label>
-    <select id="charFolder"></select>
-
-    <!-- 装備セット -->
-    <h4>装備セット</h4>
-
-    <!-- 装備セット一覧（JSで生成） -->
-    <div id="equipSets"></div>
-
-    <button type="button" onclick="addEquipSet()">＋ 装備セット追加</button>
-
-    <!-- 備考 -->
-    <label>備考</label>
-    <textarea id="charMemo" placeholder="備考"></textarea>
-
-    <!-- 操作 -->
-    <div class="modal-actions">
-      <button type="button" onclick="saveCharacter()">保存</button>
-      <button type="button" onclick="closeModal()">閉じる</button>
+<!-- キャラ詳細モーダル -->
+<div class="modal" id="characterDetailModal">
+  <div class="modal-content" id="characterDetailContent">
+    <h3 id="detailTitle"></h3>
+    <img id="detailImage" class="detail-image">
+    <p id="detailNote"></p>
+    <div id="detailEquipment"></div>
+    <div class="actions">
+      <button id="detailEditBtn">編集</button>
+      <button id="detailDeleteBtn">削除</button>
+      <button onclick="characterDetailModal.classList.remove('active')">閉じる</button>
     </div>
-
   </div>
 </div>
 
-<!-- =========================
-     装備候補管理モーダル
-========================= -->
-<div id="presetModal" class="modal hidden">
-  <div class="modal-content">
-    <h3>装備候補管理</h3>
-
-    <input id="presetInput" placeholder="装備候補名">
-    <button type="button" onclick="addPreset()">追加</button>
-
-    <ul id="presetList"></ul>
-
-    <button type="button" onclick="closeModal()">閉じる</button>
-  </div>
+<!-- フォルダ管理モーダル -->
+<div class="modal" id="folderModal">
+  <div class="modal-content" id="folderModalContent"></div>
 </div>
 
+<script src="script.js"></script>
 </body>
 </html>
