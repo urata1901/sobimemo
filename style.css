@@ -1,0 +1,90 @@
+body {
+  margin: 0;
+  font-family: sans-serif;
+}
+
+header {
+  padding: 10px;
+  background: #222;
+  color: white;
+  display: flex;
+  gap: 10px;
+}
+
+#container {
+  display: flex;
+}
+
+aside {
+  width: 200px;
+  padding: 10px;
+  border-right: 1px solid #ccc;
+}
+
+main {
+  flex: 1;
+  padding: 10px;
+}
+
+.character {
+  display: flex;
+  gap: 10px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.character img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+}
+
+.character-info {
+  flex: 1;
+}
+
+.equipments {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.equipment {
+  border: 1px solid #aaa;
+  padding: 5px;
+  min-width: 140px;
+}
+
+.equipment strong {
+  display: block;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 3px;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 15px;
+  width: 400px;
+  max-height: 80vh;
+  overflow: auto;
+}
+
+.hidden {
+  display: none;
+}
+
+.equip-input {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 5px;
+}
