@@ -181,8 +181,8 @@ body.select-mode-active .select-mode-buttons {
 
 /* キャラ詳細モーダル */
 .detail-image {
-  width: 100%;
-  max-width: 50px; /* 中サイズに制限 */
+  width: 30%;
+  max-width: 30%; /* 中サイズに制限 */
   aspect-ratio: 1 / 1; /* 正方形 */
   object-fit: cover;
   margin-bottom: 8px;

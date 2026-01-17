@@ -1,9 +1,10 @@
-// データ
+// -------------------- データ --------------------
 let characters = JSON.parse(localStorage.getItem("characters")) || [];
 let folders = JSON.parse(localStorage.getItem("folders")) || [];
 let selectMode = false;
+let equipmentHistory = JSON.parse(localStorage.getItem("equipmentHistory")) || [];
 
-// DOM
+// -------------------- DOM --------------------
 const folderContainer = document.getElementById("folderContainer");
 const addCharacterBtn = document.getElementById("addCharacterBtn");
 const toggleSelectModeBtn = document.getElementById("toggleSelectModeBtn");
@@ -38,13 +39,43 @@ const folderBtn = document.getElementById("folderBtn");
 const folderModal = document.getElementById("folderModal");
 const folderModalContent = document.getElementById("folderModalContent");
 
+// datalist for equipment
+let dataListId = "equipHistoryList";
+if(!document.getElementById(dataListId)){
+  const dl = document.createElement("datalist");
+  dl.id = dataListId;
+  document.body.appendChild(dl);
+}
+
 // -------------------- 保存 --------------------
 const save = () => {
   localStorage.setItem("characters", JSON.stringify(characters));
   localStorage.setItem("folders", JSON.stringify(folders));
+  localStorage.setItem("equipmentHistory", JSON.stringify(equipmentHistory));
   updateBulkMoveSelect();
-  render();
+  updateEquipmentDatalist();
+  render(searchInput.value.toLowerCase());
 };
+
+// -------------------- 装備履歴 --------------------
+function addEquipmentHistory(name){
+  if(!name) return;
+  equipmentHistory = equipmentHistory.filter(e => e !== name); // 重複削除
+  equipmentHistory.unshift(name);
+  if(equipmentHistory.length > 20) equipmentHistory.pop();
+  localStorage.setItem("equipmentHistory", JSON.stringify(equipmentHistory));
+  updateEquipmentDatalist();
+}
+
+function updateEquipmentDatalist(){
+  const dataList = document.getElementById(dataListId);
+  dataList.innerHTML = "";
+  equipmentHistory.forEach(e => {
+    const option = document.createElement("option");
+    option.value = e;
+    dataList.appendChild(option);
+  });
+}
 
 // -------------------- フォルダ管理 --------------------
 folderBtn.onclick = () => {
@@ -72,8 +103,7 @@ folderBtn.onclick = () => {
     if(!folders.includes(val)) folders.push(val);
     input.value = "";
     save();
-    folderModal.classList.remove("active"); // ← 追加後にモーダル閉じる
-    render();
+    folderModal.classList.remove("active"); // フォルダ追加後に閉じる
   };
 };
 
@@ -88,7 +118,7 @@ function deleteFolder(name){
 toggleSelectModeBtn.onclick = () => {
   selectMode = !selectMode;
   document.body.classList.toggle("select-mode-active", selectMode);
-  render();
+  render(searchInput.value.toLowerCase());
 };
 
 // -------------------- キャラ追加 --------------------
@@ -113,12 +143,13 @@ function openCharacterForm(index = null){
       const setDiv = document.createElement("div");
       setDiv.className = "equipment-set";
       setDiv.innerHTML = `<input class="equipSetName" placeholder="セット名" value="${s.name}">
-        ${s.items.map(it => `<input class="equipItem" placeholder="装備名" value="${it}">`).join("")}
+        ${s.items.map(it => `<input class="equipItem" placeholder="装備名" list="${dataListId}" value="${it}">`).join("")}
         <button type="button" class="addEquipItemBtn">装備追加</button>`;
       setDiv.querySelector(".addEquipItemBtn").onclick = () => {
         const input = document.createElement("input"); 
         input.className = "equipItem"; 
         input.placeholder = "装備名"; 
+        input.setAttribute("list", dataListId);
         setDiv.insertBefore(input, setDiv.querySelector(".addEquipItemBtn")); 
       };
       equipmentSetsContainer.appendChild(setDiv);
@@ -139,19 +170,20 @@ addEquipmentSetBtn.onclick = () => {
   const setDiv = document.createElement("div");
   setDiv.className = "equipment-set";
   setDiv.innerHTML = `<input placeholder="セット名" class="equipSetName">
-    <input placeholder="装備1" class="equipItem">
+    <input placeholder="装備1" class="equipItem" list="${dataListId}">
     <button type="button" class="addEquipItemBtn">装備追加</button>`;
   const addItemBtn = setDiv.querySelector(".addEquipItemBtn");
   addItemBtn.onclick = () => {
     const input = document.createElement("input");
     input.placeholder = "装備名";
     input.className = "equipItem";
+    input.setAttribute("list", dataListId);
     setDiv.insertBefore(input, addItemBtn);
   };
   equipmentSetsContainer.appendChild(setDiv);
 };
 
-// -------------------- キャラ保存（画像保持対応） --------------------
+// -------------------- キャラ保存 --------------------
 characterForm.onsubmit = e => {
   e.preventDefault();
   const title = characterTitle.value.trim();
@@ -161,6 +193,7 @@ characterForm.onsubmit = e => {
   const equipSets = [...equipmentSetsContainer.querySelectorAll(".equipment-set")].map(s => {
     const name = s.querySelector(".equipSetName").value.trim();
     const items = [...s.querySelectorAll(".equipItem")].map(it => it.value.trim()).filter(x => x);
+    items.forEach(addEquipmentHistory); // 履歴追加
     return {name, items};
   });
 
@@ -186,10 +219,20 @@ characterForm.onsubmit = e => {
 
 // -------------------- render --------------------
 function render(keyword=""){
+  // 選択モードボタン表示
+  selectAllBtn.style.display = selectMode ? "inline-block" : "none";
+  deselectAllBtn.style.display = selectMode ? "inline-block" : "none";
+  bulkDeleteBtn.style.display = selectMode ? "inline-block" : "none";
+  bulkMoveSelect.style.display = selectMode ? "inline-block" : "none";
+  bulkMoveBtn.style.display = selectMode ? "inline-block" : "none";
+
   folderContainer.innerHTML = "";
   const folderNames = ["未分類", ...folders];
   folderNames.forEach(folderName => {
-    const charsInFolder = characters.filter(c => c.folder === folderName || (folderName === "未分類" && (!c.folder || c.folder === "")));
+    const charsInFolder = characters.filter(c => 
+      (c.folder === folderName || (folderName === "" && folderName === "未分類")) &&
+      c.title.toLowerCase().includes(keyword)
+    );
     const folderDiv = document.createElement("div");
     folderDiv.className = "folder-block";
     const folderHeader = document.createElement("div");
@@ -199,7 +242,7 @@ function render(keyword=""){
     folderDiv.appendChild(folderHeader);
 
     charsInFolder.forEach((c, i) => {
-      const card = createCharacterCard(c, i);
+      const card = createCharacterCard(c, characters.indexOf(c));
       folderDiv.appendChild(card);
     });
 
@@ -278,4 +321,5 @@ searchInput.oninput = () => render(searchInput.value.toLowerCase());
 
 // 初期描画
 updateBulkMoveSelect();
+updateEquipmentDatalist();
 render();

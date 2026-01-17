@@ -9,59 +9,62 @@
 <body>
 
 <header>
+  <input id="searchInput" placeholder="検索">
   <button id="addCharacterBtn">キャラ追加</button>
   <button id="folderBtn">フォルダ管理</button>
-  <button id="toggleSelectModeBtn">選択</button>
-  <div class="select-mode-buttons">
-    <button id="selectAllBtn">全選択</button>
-    <button id="deselectAllBtn">全解除</button>
-    <button id="bulkDeleteBtn">一括削除</button>
-    <select id="bulkMoveSelect"></select>
-    <button id="bulkMoveBtn">移動</button>
-  </div>
-  <input class="search" id="searchInput" placeholder="検索">
+  <button id="toggleSelectModeBtn">選択モード</button>
+  <button id="selectAllBtn">全選択</button>
+  <button id="deselectAllBtn">全解除</button>
+  <button id="bulkDeleteBtn">一括削除</button>
+  <select id="bulkMoveSelect"></select>
+  <button id="bulkMoveBtn">一括移動</button>
 </header>
 
-<main id="folderContainer"></main>
+<main id="folderContainer">
+  <!-- フォルダ・キャラカードがJSで描画されます -->
+</main>
 
 <!-- キャラ作成・編集モーダル -->
-<div class="modal" id="characterModal">
-  <div class="modal-content">
-    <form id="characterForm">
-      <h3>キャラクター情報</h3>
-      <input id="characterTitle" placeholder="キャラ名" required>
-      <input type="file" id="characterImage" accept="image/*"><br>
-      <div id="equipmentSetsContainer"></div>
-      <br><button type="button" id="addEquipmentSetBtn">装備セット追加</button>
-      <br><br><select id="characterFolder"></select><br>
-      <br><textarea id="characterNote" placeholder="備考"></textarea>
-      <div class="actions">
-        <button type="submit">保存</button>
-        <button type="button" onclick="characterModal.classList.remove('active')">閉じる</button>
-      </div>
-    </form>
-  </div>
+<div id="characterModal" class="modal">
+  <form id="characterForm" class="modal-content">
+    <h2>キャラ情報</h2>
+    <label>キャラ名:<input id="characterTitle" required></label><br>
+    <label>画像:<input type="file" id="characterImage" accept="image/*"></label><br>
+    <label>フォルダ:
+      <select id="characterFolder"></select>
+    </label><br>
+
+    <h3>装備セット</h3>
+    <div id="equipmentSetsContainer"></div>
+    <button type="button" id="addEquipmentSetBtn">装備セット追加</button><br><br>
+
+    <label>備考:<textarea id="characterNote"></textarea></label><br>
+
+    <button type="submit">保存</button>
+    <button type="button" onclick="characterModal.classList.remove('active')">閉じる</button>
+  </form>
 </div>
 
 <!-- キャラ詳細モーダル -->
-<div class="modal" id="characterDetailModal">
-  <div class="modal-content" id="characterDetailContent">
-    <h3 id="detailTitle"></h3>
-    <img id="detailImage" class="detail-image">
+<div id="characterDetailModal" class="modal">
+  <div class="modal-content">
+    <h2 id="detailTitle"></h2>
+    <img id="detailImage" style="max-width:200px; max-height:200px;"><br>
     <p id="detailNote"></p>
-    <div id="detailEquipment"></div>
-    <div class="actions">
-      <button id="detailEditBtn">編集</button>
-      <button id="detailDeleteBtn">削除</button>
-      <button onclick="characterDetailModal.classList.remove('active')">閉じる</button>
-    </div>
+    <div id="detailEquipment" class="home-equipment-row"></div>
+    <button id="detailEditBtn">内容を編集</button>
+    <button id="detailDeleteBtn">削除</button>
+    <button type="button" onclick="characterDetailModal.classList.remove('active')">閉じる</button>
   </div>
 </div>
 
 <!-- フォルダ管理モーダル -->
-<div class="modal" id="folderModal">
-  <div class="modal-content" id="folderModalContent"></div>
+<div id="folderModal" class="modal">
+  <div id="folderModalContent" class="modal-content"></div>
 </div>
+
+<!-- 装備履歴用 datalist -->
+<datalist id="equipHistoryList"></datalist>
 
 <script src="script.js"></script>
 </body>
