@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>キャラ装備管理</title>
+<title>装備メモ</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -30,11 +30,11 @@
     <form id="characterForm">
       <h3>キャラクター情報</h3>
       <input id="characterTitle" placeholder="キャラ名" required>
-      <input type="file" id="characterImage" accept="image/*">
-      <select id="characterFolder"></select>
+      <input type="file" id="characterImage" accept="image/*"><br>
       <div id="equipmentSetsContainer"></div>
-      <button type="button" id="addEquipmentSetBtn">装備セット追加</button>
-      <textarea id="characterNote" placeholder="備考"></textarea>
+      <br><button type="button" id="addEquipmentSetBtn">装備セット追加</button>
+      <br><br><select id="characterFolder"></select><br>
+      <br><textarea id="characterNote" placeholder="備考"></textarea>
       <div class="actions">
         <button type="submit">保存</button>
         <button type="button" onclick="characterModal.classList.remove('active')">閉じる</button>

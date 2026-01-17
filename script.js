@@ -72,6 +72,7 @@ folderBtn.onclick = () => {
     if(!folders.includes(val)) folders.push(val);
     input.value = "";
     save();
+    folderModal.classList.remove("active"); // ← 追加後にモーダル閉じる
     render();
   };
 };
