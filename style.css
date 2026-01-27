@@ -1,126 +1,195 @@
 body {
-  font-family: -apple-system;
   margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   background: #f2f2f7;
 }
 
-header {
-  background: #fff;
-  padding: 10px;
+.ios-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-.income-area {
+.income-wrap {
   display: flex;
-  gap: 10px;
-  margin-bottom: 8px;
+  gap: 8px;
+  padding: 12px;
 }
 
 .income-box {
   flex: 1;
-  background: #e5f0ff;
-  border-radius: 12px;
+  background: white;
+  border-radius: 14px;
   padding: 10px;
-}
-
-.income-box.readonly {
-  background: #f0f0f0;
 }
 
 .income-label {
   font-size: 11px;
-  color: #555;
+  color: #666;
 }
 
 .income-value {
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.income-unit {
-  font-size: 12px;
-}
-
-.calendar-header {
   display: flex;
+  align-items: flex-end;
   gap: 4px;
-  align-items: center;
-  justify-content: space-between;
+  font-size: 20px;
 }
 
-.weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
+.yen {
   font-size: 12px;
-  text-align: center;
-  color: #666;
-  margin-top: 6px;
 }
 
 #calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
-  padding: 6px;
 }
 
 .day {
-  background: #fff;
-  border-radius: 8px;
+  min-height: 110px;
+  border: 1px solid #ddd;
+  background: white;
   padding: 4px;
-  min-height: 80px;
-  font-size: 12px;
 }
 
 .today {
-  border: 2px solid #007aff;
+  border: 2px solid #007AFF;
+  background: #EAF2FF;
+}
+
+.date {
+  font-size: 12px;
 }
 
 .event {
-  background: #ffd966;
-  border-radius: 4px;
-  padding: 2px;
-  margin-top: 2px;
   font-size: 10px;
+  padding: 2px 4px;
+  margin-top: 2px;
+  border-radius: 6px;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-button {
-  background: #007aff;
+.floating {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  font-size: 28px;
+  background: #007AFF;
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 6px 8px;
-}
-
-.danger {
-  background: #ff3b30;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
 }
 
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background: rgba(0,0,0,0.4);
 }
 
-.modal-content {
+.hidden { display: none; }
+
+.sheet {
   background: white;
-  border-radius: 14px;
-  padding: 15px;
-  width: 90%;
+  width: 92%;
+  margin: 10% auto;
+  border-radius: 16px;
+  padding: 16px;
 }
 
-.scroll {
+.sheet.scroll {
   max-height: 80vh;
   overflow-y: auto;
 }
 
-.hidden {
-  display: none;
+label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 14px;
 }
 
 input, textarea {
   width: 100%;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  margin-top: 4px;
+}
+
+.time-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.primary {
+  width: 100%;
+  padding: 12px;
+  background: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  margin-top: 12px;
+}
+
+.close {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  background: #e5e5ea;
+  border: none;
+  border-radius: 12px;
+}
+
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 0 8px;
+  font-size: 12px;
+  text-align: center;
+  color: #555;
+}
+
+.week div {
+  padding: 4px 0;
+}
+
+.sun {
+  color: #ff3b30;   /* iOSの赤 */
+}
+
+.sat {
+  color: #007aff;   /* iOSの青 */
+}
+.action-sheet {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+}
+
+.sheet-btn {
+  width: 100%;
+  padding: 14px;
   margin-bottom: 8px;
+  border-radius: 14px;
+  border: none;
+  background: white;
+  font-size: 16px;
+}
+
+.sheet-btn.danger {
+  color: #ff3b30;
+}
+
+.sheet-btn.cancel {
+  background: #e5e5ea;
 }

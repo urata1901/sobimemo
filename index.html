@@ -1,85 +1,117 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>バイトカレンダー</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-  <div class="income-area">
-    <div class="income-box" id="monthlyIncomeBox">
-      <span class="income-label">今月の手取り</span>
-      <span class="income-value" id="monthlyIncome">0</span>
-      <span class="income-unit">円</span>
-    </div>
-
-    <div class="income-box readonly">
-      <span class="income-label">今年の手取り</span>
-      <span class="income-value" id="yearlyIncome">0</span>
-      <span class="income-unit">円</span>
-    </div>
-  </div>
-
-  <div class="calendar-header">
-    <button id="prevMonth">◀</button>
-    <h2 id="currentMonth"></h2>
-    <button id="nextMonth">▶</button>
-    <button id="todayBtn">今月へ移動</button>
-    <button id="addSchedule">＋</button>
-  </div>
-
-  <div class="weekdays">
-    <span>日</span><span>月</span><span>火</span>
-    <span>水</span><span>木</span><span>金</span><span>土</span>
-  </div>
+<header class="ios-header">
+  <button id="prevMonth">◀︎</button>
+  <h1 id="monthLabel"></h1>
+  <button id="nextMonth">▶︎</button>
 </header>
 
-<main>
-  <div id="calendar"></div>
-</main>
 
-<!-- 月収 -->
-<div class="modal hidden" id="incomeModal">
-  <div class="modal-content">
-    <h3>今月の手取りを入力</h3>
-    <input type="number" id="incomeInput" />
-    <button id="saveIncome">更新</button>
+<!-- 収入表示 -->
+<div class="income-wrap">
+  <div class="income-box" onclick="openIncomeModal()">
+    <div class="income-label">今月の手取り</div>
+    <div class="income-value">
+      <span id="monthIncome">0</span>
+      <span class="yen">円</span>
+    </div>
+  </div>
+
+  <div class="income-box">
+    <div class="income-label">今年の手取り</div>
+    <div class="income-value">
+      <span id="yearIncome">0</span>
+      <span class="yen">円</span>
+    </div>
+  </div>
+</div>
+
+<div class="week">
+  <div class="sun">日</div>
+  <div>月</div>
+  <div>火</div>
+  <div>水</div>
+  <div>木</div>
+  <div>金</div>
+  <div class="sat">土</div>
+</div>
+
+
+<main id="calendar"></main>
+
+<button id="addBtn" class="floating">＋</button>
+
+
+<!-- 日付一覧 -->
+<div id="dayModal" class="modal hidden">
+  <div class="sheet">
+    <h2 id="modalDate"></h2>
+    <div id="eventList"></div>
+    <button class="primary" onclick="openForm(selectedDate)">予定を追加</button>
+    <button class="close" onclick="closeDayModal()">閉じる</button>
   </div>
 </div>
 
 <!-- 予定追加・編集 -->
-<div class="modal hidden" id="scheduleModal">
-  <div class="modal-content scroll">
-    <h3 id="scheduleTitle">予定追加</h3>
+<div id="formModal" class="modal hidden">
+  <div class="sheet scroll">
+    <h2 id="formTitle">予定追加</h2>
 
-    <input type="date" id="dateInput" />
-    <input type="text" placeholder="タイトル" id="titleInput" />
+    <label>日付<input type="date" id="f-date"></label>
+    <label>タイトル<input type="text" id="f-title"></label>
 
     <label>予定時間</label>
-    <input type="time" id="planTime" />
+    <div class="time-row">
+      <input type="time" id="f-planStart">
+      <span>〜</span>
+      <input type="time" id="f-planEnd">
+    </div>
 
     <label>実際の時間</label>
-    <input type="time" id="actualTime" />
+    <div class="time-row">
+      <input type="time" id="f-actualStart">
+      <span>〜</span>
+      <input type="time" id="f-actualEnd">
+    </div>
 
-    <input type="text" placeholder="場所" id="placeInput" />
-    <input type="text" placeholder="作業内容" id="workInput" />
-    <input type="text" placeholder="リーダー" id="leaderInput" />
-    <input type="number" placeholder="人数" id="peopleInput" />
-    <textarea placeholder="メモ" id="memoInput"></textarea>
+    <label>場所<input type="text" id="f-place"></label>
+    <label>作業内容<input type="text" id="f-work"></label>
+    <label>リーダー<input type="text" id="f-leader"></label>
+    <label>人数<input type="text" id="f-people"></label>
+    <label>メモ<textarea id="f-memo"></textarea></label>
+    <label>色<input type="color" id="f-color"></label>
 
-    <button id="saveSchedule">保存</button>
+    <button class="primary" onclick="saveEvent()">保存</button>
+    <button class="close" onclick="closeForm()">キャンセル</button>
   </div>
 </div>
 
 <!-- 詳細 -->
-<div class="modal hidden" id="detailModal">
-  <div class="modal-content">
-    <div id="detailContent"></div>
-    <button id="editBtn">編集</button>
-    <button id="deleteBtn" class="danger">削除</button>
+<!-- アクションシート -->
+<div id="actionSheet" class="modal hidden">
+  <div class="action-sheet">
+    <button class="sheet-btn" onclick="editSelected()">編集</button>
+    <button class="sheet-btn danger" onclick="confirmDelete()">削除</button>
+    <button class="sheet-btn cancel" onclick="closeActionSheet()">キャンセル</button>
+  </div>
+</div>
+
+
+<!-- 収入入力 -->
+<div id="incomeModal" class="modal hidden">
+  <div class="sheet">
+    <h2>今月の手取りを入力</h2>
+    <input type="number" id="incomeInput">
+    <button class="primary" onclick="saveIncome()">更新</button>
+    <button class="close" onclick="closeIncomeModal()">閉じる</button>
   </div>
 </div>
 
