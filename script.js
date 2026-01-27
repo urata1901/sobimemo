@@ -1,327 +1,159 @@
-// -------------------- データ --------------------
-let characters = JSON.parse(localStorage.getItem("characters")) || [];
-let folders = JSON.parse(localStorage.getItem("folders")) || [];
-let selectMode = false;
-let equipmentHistory = JSON.parse(localStorage.getItem("equipmentHistory")) || [];
+const calendar = document.getElementById("calendar");
+const currentMonthLabel = document.getElementById("currentMonth");
 
-// -------------------- DOM --------------------
-const folderContainer = document.getElementById("folderContainer");
-const addCharacterBtn = document.getElementById("addCharacterBtn");
-const toggleSelectModeBtn = document.getElementById("toggleSelectModeBtn");
-const selectAllBtn = document.getElementById("selectAllBtn");
-const deselectAllBtn = document.getElementById("deselectAllBtn");
-const bulkDeleteBtn = document.getElementById("bulkDeleteBtn");
-const bulkMoveSelect = document.getElementById("bulkMoveSelect");
-const bulkMoveBtn = document.getElementById("bulkMoveBtn");
-const searchInput = document.getElementById("searchInput");
+let today = new Date();
+let currentDate = new Date(today.getFullYear(), today.getMonth(), 1);
 
-// キャラモーダル
-const characterModal = document.getElementById("characterModal");
-const characterForm = document.getElementById("characterForm");
-const characterTitle = document.getElementById("characterTitle");
-const characterImage = document.getElementById("characterImage");
-const characterFolder = document.getElementById("characterFolder");
-const characterNote = document.getElementById("characterNote");
-const equipmentSetsContainer = document.getElementById("equipmentSetsContainer");
-const addEquipmentSetBtn = document.getElementById("addEquipmentSetBtn");
+const minDate = new Date(2023, 0, 1);
 
-// キャラ詳細モーダル
-const characterDetailModal = document.getElementById("characterDetailModal");
-const detailTitle = document.getElementById("detailTitle");
-const detailImage = document.getElementById("detailImage");
-const detailNote = document.getElementById("detailNote");
-const detailEquipment = document.getElementById("detailEquipment");
-const detailEditBtn = document.getElementById("detailEditBtn");
-const detailDeleteBtn = document.getElementById("detailDeleteBtn");
+let schedules = JSON.parse(localStorage.getItem("schedules") || "{}");
+let incomes = JSON.parse(localStorage.getItem("incomes") || "{}");
 
-// フォルダモーダル
-const folderBtn = document.getElementById("folderBtn");
-const folderModal = document.getElementById("folderModal");
-const folderModalContent = document.getElementById("folderModalContent");
+let selectedSchedule = null;
+let selectedDateKey = null;
 
-// datalist for equipment
-let dataListId = "equipHistoryList";
-if(!document.getElementById(dataListId)){
-  const dl = document.createElement("datalist");
-  dl.id = dataListId;
-  document.body.appendChild(dl);
-}
+function renderCalendar() {
+  calendar.innerHTML = "";
 
-// -------------------- 保存 --------------------
-const save = () => {
-  localStorage.setItem("characters", JSON.stringify(characters));
-  localStorage.setItem("folders", JSON.stringify(folders));
-  localStorage.setItem("equipmentHistory", JSON.stringify(equipmentHistory));
-  updateBulkMoveSelect();
-  updateEquipmentDatalist();
-  render(searchInput.value.toLowerCase());
-};
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
 
-// -------------------- 装備履歴 --------------------
-function addEquipmentHistory(name){
-  if(!name) return;
-  equipmentHistory = equipmentHistory.filter(e => e !== name); // 重複削除
-  equipmentHistory.unshift(name);
-  if(equipmentHistory.length > 20) equipmentHistory.pop();
-  localStorage.setItem("equipmentHistory", JSON.stringify(equipmentHistory));
-  updateEquipmentDatalist();
-}
+  currentMonthLabel.textContent = `${year}年 ${month + 1}月`;
+  updateIncome(year, month);
 
-function updateEquipmentDatalist(){
-  const dataList = document.getElementById(dataListId);
-  dataList.innerHTML = "";
-  equipmentHistory.forEach(e => {
-    const option = document.createElement("option");
-    option.value = e;
-    dataList.appendChild(option);
-  });
-}
+  const firstDay = new Date(year, month, 1).getDay();
+  const days = new Date(year, month + 1, 0).getDate();
 
-// -------------------- フォルダ管理 --------------------
-folderBtn.onclick = () => {
-  folderModalContent.innerHTML = `<h3>フォルダ管理</h3>
-    <div>
-      <input id="newFolderInput" placeholder="新規フォルダ名">
-      <button id="createFolderBtn">作成</button>
-    </div>
-    <div id="folderListContainer"></div>
-    <button onclick="folderModal.classList.remove('active')">閉じる</button>`;
-  
-  const listContainer = folderModalContent.querySelector("#folderListContainer");
-  folders.forEach(f => {
-    const div = document.createElement("div");
-    div.innerHTML = `<span>${f}</span> <button onclick="deleteFolder('${f}')">・・・</button>`;
-    listContainer.appendChild(div);
-  });
-  folderModal.classList.add("active");
+  for (let i = 0; i < firstDay; i++) calendar.appendChild(document.createElement("div"));
 
-  const input = folderModalContent.querySelector("#newFolderInput");
-  const createBtn = folderModalContent.querySelector("#createFolderBtn");
-  createBtn.onclick = () => {
-    const val = input.value.trim();
-    if(!val) return;
-    if(!folders.includes(val)) folders.push(val);
-    input.value = "";
-    save();
-    folderModal.classList.remove("active"); // フォルダ追加後に閉じる
-  };
-};
+  for (let d = 1; d <= days; d++) {
+    const cell = document.createElement("div");
+    cell.className = "day";
 
-function deleteFolder(name){
-  if(!confirm(`フォルダ「${name}」を削除しますか？\n中のキャラは未分類に移動します`)) return;
-  folders = folders.filter(f => f !== name);
-  characters.forEach(c => { if(c.folder === name) c.folder = ""; });
-  save();
-}
+    if (
+      d === today.getDate() &&
+      month === today.getMonth() &&
+      year === today.getFullYear()
+    ) cell.classList.add("today");
 
-// -------------------- 選択モード --------------------
-toggleSelectModeBtn.onclick = () => {
-  selectMode = !selectMode;
-  document.body.classList.toggle("select-mode-active", selectMode);
-  render(searchInput.value.toLowerCase());
-};
+    cell.innerHTML = `<strong>${d}</strong>`;
 
-// -------------------- キャラ追加 --------------------
-addCharacterBtn.onclick = () => {
-  openCharacterForm();
-};
-
-function openCharacterForm(index = null){
-  characterForm.dataset.editIndex = index === null ? "" : index;
-  if(index === null){
-    characterTitle.value = "";
-    characterNote.value = "";
-    characterImage.value = "";
-    equipmentSetsContainer.innerHTML = "";
-    updateCharacterFolderSelect();
-  } else {
-    const c = characters[index];
-    characterTitle.value = c.title;
-    characterNote.value = c.note;
-    equipmentSetsContainer.innerHTML = "";
-    c.equipmentSets.forEach(s => {
-      const setDiv = document.createElement("div");
-      setDiv.className = "equipment-set";
-      setDiv.innerHTML = `<input class="equipSetName" placeholder="セット名" value="${s.name}">
-        ${s.items.map(it => `<input class="equipItem" placeholder="装備名" list="${dataListId}" value="${it}">`).join("")}
-        <button type="button" class="addEquipItemBtn">装備追加</button>`;
-      setDiv.querySelector(".addEquipItemBtn").onclick = () => {
-        const input = document.createElement("input"); 
-        input.className = "equipItem"; 
-        input.placeholder = "装備名"; 
-        input.setAttribute("list", dataListId);
-        setDiv.insertBefore(input, setDiv.querySelector(".addEquipItemBtn")); 
-      };
-      equipmentSetsContainer.appendChild(setDiv);
-    });
-    updateCharacterFolderSelect();
-    characterFolder.value = c.folder || "";
+    const key = `${year}-${month + 1}-${d}`;
+    if (schedules[key]) {
+      schedules[key].forEach((e, i) => {
+        const ev = document.createElement("div");
+        ev.className = "event";
+        ev.textContent = e.title;
+        ev.onclick = () => openDetail(key, i);
+        cell.appendChild(ev);
+      });
+    }
+    calendar.appendChild(cell);
   }
-  characterModal.classList.add("active");
 }
 
-function updateCharacterFolderSelect(){
-  characterFolder.innerHTML = "<option value=''>未分類</option>";
-  folders.forEach(f => characterFolder.innerHTML += `<option value="${f}">${f}</option>`);
-}
+function updateIncome(year, month) {
+  const key = `${year}-${month + 1}`;
+  document.getElementById("monthlyIncome").textContent = incomes[key] || 0;
 
-// -------------------- 装備セット追加 --------------------
-addEquipmentSetBtn.onclick = () => {
-  const setDiv = document.createElement("div");
-  setDiv.className = "equipment-set";
-  setDiv.innerHTML = `<input placeholder="セット名" class="equipSetName">
-    <input placeholder="装備1" class="equipItem" list="${dataListId}">
-    <button type="button" class="addEquipItemBtn">装備追加</button>`;
-  const addItemBtn = setDiv.querySelector(".addEquipItemBtn");
-  addItemBtn.onclick = () => {
-    const input = document.createElement("input");
-    input.placeholder = "装備名";
-    input.className = "equipItem";
-    input.setAttribute("list", dataListId);
-    setDiv.insertBefore(input, addItemBtn);
-  };
-  equipmentSetsContainer.appendChild(setDiv);
-};
-
-// -------------------- キャラ保存 --------------------
-characterForm.onsubmit = e => {
-  e.preventDefault();
-  const title = characterTitle.value.trim();
-  if(!title) return alert("キャラ名を入力してください");
-  const folder = characterFolder.value;
-  const note = characterNote.value;
-  const equipSets = [...equipmentSetsContainer.querySelectorAll(".equipment-set")].map(s => {
-    const name = s.querySelector(".equipSetName").value.trim();
-    const items = [...s.querySelectorAll(".equipItem")].map(it => it.value.trim()).filter(x => x);
-    items.forEach(addEquipmentHistory); // 履歴追加
-    return {name, items};
+  let sum = 0;
+  Object.keys(incomes).forEach(k => {
+    if (k.startsWith(year + "-")) sum += incomes[k];
   });
+  document.getElementById("yearlyIncome").textContent = sum;
+}
 
-  const index = characterForm.dataset.editIndex;
-  let imgData = index !== "" ? characters[index].image || "" : "";
+function openDetail(dateKey, index) {
+  selectedDateKey = dateKey;
+  selectedSchedule = index;
+  const d = schedules[dateKey][index];
 
-  const file = characterImage.files[0];
+  detailContent.innerHTML = `
+    <strong>${d.title}</strong><br>
+    予定:${d.planTime}<br>
+    実際:${d.actualTime}<br>
+    場所:${d.place}<br>
+    作業:${d.work}<br>
+    リーダー:${d.leader}<br>
+    人数:${d.people}<br>
+    メモ:${d.memo}
+  `;
+  detailModal.classList.remove("hidden");
+}
 
-  const saveChar = () => {
-    const newChar = {title, folder, note, image: imgData, equipmentSets: equipSets};
-    if(index === "") characters.push(newChar);
-    else characters[index] = {...characters[index], ...newChar};
-    save();
-    characterModal.classList.remove("active");
-  };
+editBtn.onclick = () => {
+  const d = schedules[selectedDateKey][selectedSchedule];
+  dateInput.value = selectedDateKey;
+  titleInput.value = d.title;
+  planTime.value = d.planTime;
+  actualTime.value = d.actualTime;
+  placeInput.value = d.place;
+  workInput.value = d.work;
+  leaderInput.value = d.leader;
+  peopleInput.value = d.people;
+  memoInput.value = d.memo;
 
-  if(file){
-    const reader = new FileReader();
-    reader.onload = e => { imgData = e.target.result; saveChar(); };
-    reader.readAsDataURL(file);
-  } else saveChar();
+  schedules[selectedDateKey].splice(selectedSchedule, 1);
+  detailModal.classList.add("hidden");
+  scheduleModal.classList.remove("hidden");
 };
 
-// -------------------- render --------------------
-function render(keyword=""){
-  // 選択モードボタン表示
-  selectAllBtn.style.display = selectMode ? "inline-block" : "none";
-  deselectAllBtn.style.display = selectMode ? "inline-block" : "none";
-  bulkDeleteBtn.style.display = selectMode ? "inline-block" : "none";
-  bulkMoveSelect.style.display = selectMode ? "inline-block" : "none";
-  bulkMoveBtn.style.display = selectMode ? "inline-block" : "none";
+deleteBtn.onclick = () => {
+  if (confirm("削除しますか？")) {
+    schedules[selectedDateKey].splice(selectedSchedule, 1);
+    localStorage.setItem("schedules", JSON.stringify(schedules));
+    detailModal.classList.add("hidden");
+    renderCalendar();
+  }
+};
 
-  folderContainer.innerHTML = "";
-  const folderNames = ["未分類", ...folders];
-  folderNames.forEach(folderName => {
-    const charsInFolder = characters.filter(c => {
-  if (!c.title.toLowerCase().includes(keyword)) return false;
-  if (folderName === "未分類") return !c.folder; // folder が空なら表示
-  return c.folder === folderName;             // folder があるなら表示
-});
+todayBtn.onclick = () => {
+  currentDate = new Date(today.getFullYear(), today.getMonth(), 1);
+  renderCalendar();
+};
 
-    const folderDiv = document.createElement("div");
-    folderDiv.className = "folder-block";
-    const folderHeader = document.createElement("div");
-    folderHeader.className = "folder-header";
-    folderHeader.innerHTML = `<span>${folderName}</span> <button class="folder-options">・・・</button>`;
-    folderHeader.querySelector(".folder-options").onclick = () => { if(folderName!=="未分類") deleteFolder(folderName); };
-    folderDiv.appendChild(folderHeader);
+prevMonth.onclick = () => {
+  const prev = new Date(currentDate);
+  prev.setMonth(prev.getMonth() - 1);
+  if (prev >= minDate) {
+    currentDate = prev;
+    renderCalendar();
+  }
+};
 
-    charsInFolder.forEach((c, i) => {
-      const card = createCharacterCard(c, characters.indexOf(c));
-      folderDiv.appendChild(card);
-    });
+nextMonth.onclick = () => {
+  currentDate.setMonth(currentDate.getMonth() + 1);
+  renderCalendar();
+};
 
-    folderContainer.appendChild(folderDiv);
+monthlyIncomeBox.onclick = () => incomeModal.classList.remove("hidden");
+
+saveIncome.onclick = () => {
+  const key = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}`;
+  incomes[key] = Number(incomeInput.value);
+  localStorage.setItem("incomes", JSON.stringify(incomes));
+  incomeModal.classList.add("hidden");
+  renderCalendar();
+};
+
+addSchedule.onclick = () => scheduleModal.classList.remove("hidden");
+
+saveSchedule.onclick = () => {
+  const date = dateInput.value;
+  if (!schedules[date]) schedules[date] = [];
+  schedules[date].push({
+    title: titleInput.value,
+    planTime: planTime.value,
+    actualTime: actualTime.value,
+    place: placeInput.value,
+    work: workInput.value,
+    leader: leaderInput.value,
+    people: peopleInput.value,
+    memo: memoInput.value
   });
-  updateBulkMoveSelect();
-}
-
-function createCharacterCard(c, i){
-  const card = document.createElement("div");
-  card.className = "character-card";
-  card.onclick = () => { 
-    if(selectMode) card.classList.toggle("selected"); 
-    else openDetailModal(i); 
-  };
-  const imgHTML = c.image ? `<img src="${c.image}">` : `<div class="no-image"></div>`;
-  const titleHTML = `<div class="character-title">${c.title}</div>`;
-  const equipHTML = c.equipmentSets.map(s => `<div class="home-equipment-set"><strong>${s.name}</strong>${s.items.map(it=>`<span>${it}</span>`).join("")}</div>`).join("");
-  const infoHTML = `<div class="character-info">${titleHTML}<div class="home-equipment-row">${equipHTML}</div></div>`;
-
-  const actionsDiv = document.createElement("div");
-  actionsDiv.className = "card-actions";
-  const editBtn = document.createElement("button");
-  editBtn.textContent = "編集";
-  editBtn.onclick = e => { e.stopPropagation(); openCharacterForm(i); };
-  const delBtn = document.createElement("button");
-  delBtn.textContent = "削除";
-  delBtn.onclick = e => { e.stopPropagation(); if(!confirm("削除しますか？")) return; characters.splice(i,1); save(); };
-  actionsDiv.append(editBtn, delBtn);
-
-  card.innerHTML = imgHTML + infoHTML;
-  card.appendChild(actionsDiv);
-  return card;
-}
-
-// -------------------- キャラ詳細モーダル --------------------
-function openDetailModal(i){
-  const c = characters[i];
-  detailTitle.textContent = c.title;
-  detailImage.src = c.image || "";
-  detailNote.textContent = c.note || "";
-  detailEquipment.innerHTML = c.equipmentSets.map(s => `<div class="home-equipment-set"><strong>${s.name}</strong>${s.items.map(it => `<span>${it}</span>`).join("")}</div>`).join("");
-  detailEditBtn.onclick = () => { characterDetailModal.classList.remove("active"); openCharacterForm(i); };
-  detailDeleteBtn.onclick = () => { if(confirm("削除しますか？")){ characters.splice(i,1); save(); characterDetailModal.classList.remove("active"); } };
-  characterDetailModal.classList.add("active");
-}
-
-// -------------------- 一括操作 --------------------
-function updateBulkMoveSelect(){
-  bulkMoveSelect.innerHTML = `<option value="">フォルダ移動</option>`;
-  folders.forEach(f => bulkMoveSelect.innerHTML += `<option value="${f}">${f}</option>`);
-  bulkMoveSelect.innerHTML += `<option value="">未分類</option>`;
-}
-
-selectAllBtn.onclick = () => { document.querySelectorAll(".folder-block .character-card").forEach(c => c.classList.add("selected")); };
-deselectAllBtn.onclick = () => { document.querySelectorAll(".folder-block .character-card").forEach(c => c.classList.remove("selected")); };
-
-bulkDeleteBtn.onclick = () => {
-  const selectedIdx = [...document.querySelectorAll(".character-card.selected")].map(c => [...folderContainer.querySelectorAll(".character-card")].indexOf(c));
-  if(!selectedIdx.length) return alert("選択されていません");
-  if(!confirm("選択したキャラを削除しますか？")) return;
-  characters = characters.filter((c, i) => !selectedIdx.includes(i));
-  save();
+  localStorage.setItem("schedules", JSON.stringify(schedules));
+  scheduleModal.classList.add("hidden");
+  renderCalendar();
 };
 
-bulkMoveBtn.onclick = () => {
-  const folder = bulkMoveSelect.value;
-  if(!folder) return;
-  const selectedIdx = [...document.querySelectorAll(".character-card.selected")].map(c => [...folderContainer.querySelectorAll(".character-card")].indexOf(c));
-  selectedIdx.forEach(i => characters[i].folder = folder);
-  save();
-};
-
-// -------------------- 検索 --------------------
-searchInput.oninput = () => render(searchInput.value.toLowerCase());
-
-// 初期描画
-updateBulkMoveSelect();
-updateEquipmentDatalist();
-render();
+renderCalendar();

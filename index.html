@@ -1,70 +1,87 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>装備メモ</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>バイトカレンダー</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <header>
-  <input id="searchInput" placeholder="検索">
-  <button id="addCharacterBtn">キャラ追加</button>
-  <button id="folderBtn">フォルダ管理</button>
-  <button id="toggleSelectModeBtn">選択モード</button>
-  <button id="selectAllBtn">全選択</button>
-  <button id="deselectAllBtn">全解除</button>
-  <button id="bulkDeleteBtn">一括削除</button>
-  <select id="bulkMoveSelect"></select>
-  <button id="bulkMoveBtn">一括移動</button>
+  <div class="income-area">
+    <div class="income-box" id="monthlyIncomeBox">
+      <span class="income-label">今月の手取り</span>
+      <span class="income-value" id="monthlyIncome">0</span>
+      <span class="income-unit">円</span>
+    </div>
+
+    <div class="income-box readonly">
+      <span class="income-label">今年の手取り</span>
+      <span class="income-value" id="yearlyIncome">0</span>
+      <span class="income-unit">円</span>
+    </div>
+  </div>
+
+  <div class="calendar-header">
+    <button id="prevMonth">◀</button>
+    <h2 id="currentMonth"></h2>
+    <button id="nextMonth">▶</button>
+    <button id="todayBtn">今月へ移動</button>
+    <button id="addSchedule">＋</button>
+  </div>
+
+  <div class="weekdays">
+    <span>日</span><span>月</span><span>火</span>
+    <span>水</span><span>木</span><span>金</span><span>土</span>
+  </div>
 </header>
 
-<main id="folderContainer">
-  <!-- フォルダ・キャラカードがJSで描画されます -->
+<main>
+  <div id="calendar"></div>
 </main>
 
-<!-- キャラ作成・編集モーダル -->
-<div id="characterModal" class="modal">
-  <form id="characterForm" class="modal-content">
-    <h2>キャラ情報</h2>
-    <label>キャラ名:<input id="characterTitle" required></label><br>
-    <label>画像:<input type="file" id="characterImage" accept="image/*"></label><br>
-    <label>フォルダ:
-      <select id="characterFolder"></select>
-    </label><br>
-
-    <h3>装備セット</h3>
-    <div id="equipmentSetsContainer"></div>
-    <button type="button" id="addEquipmentSetBtn">装備セット追加</button><br><br>
-
-    <label>備考:<textarea id="characterNote"></textarea></label><br>
-
-    <button type="submit">保存</button>
-    <button type="button" onclick="characterModal.classList.remove('active')">閉じる</button>
-  </form>
-</div>
-
-<!-- キャラ詳細モーダル -->
-<div id="characterDetailModal" class="modal">
+<!-- 月収 -->
+<div class="modal hidden" id="incomeModal">
   <div class="modal-content">
-    <h2 id="detailTitle"></h2>
-    <img id="detailImage" style="max-width:200px; max-height:200px;"><br>
-    <p id="detailNote"></p>
-    <div id="detailEquipment" class="home-equipment-row"></div>
-    <button id="detailEditBtn">内容を編集</button>
-    <button id="detailDeleteBtn">削除</button>
-    <button type="button" onclick="characterDetailModal.classList.remove('active')">閉じる</button>
+    <h3>今月の手取りを入力</h3>
+    <input type="number" id="incomeInput" />
+    <button id="saveIncome">更新</button>
   </div>
 </div>
 
-<!-- フォルダ管理モーダル -->
-<div id="folderModal" class="modal">
-  <div id="folderModalContent" class="modal-content"></div>
+<!-- 予定追加・編集 -->
+<div class="modal hidden" id="scheduleModal">
+  <div class="modal-content scroll">
+    <h3 id="scheduleTitle">予定追加</h3>
+
+    <input type="date" id="dateInput" />
+    <input type="text" placeholder="タイトル" id="titleInput" />
+
+    <label>予定時間</label>
+    <input type="time" id="planTime" />
+
+    <label>実際の時間</label>
+    <input type="time" id="actualTime" />
+
+    <input type="text" placeholder="場所" id="placeInput" />
+    <input type="text" placeholder="作業内容" id="workInput" />
+    <input type="text" placeholder="リーダー" id="leaderInput" />
+    <input type="number" placeholder="人数" id="peopleInput" />
+    <textarea placeholder="メモ" id="memoInput"></textarea>
+
+    <button id="saveSchedule">保存</button>
+  </div>
 </div>
 
-<!-- 装備履歴用 datalist -->
-<datalist id="equipHistoryList"></datalist>
+<!-- 詳細 -->
+<div class="modal hidden" id="detailModal">
+  <div class="modal-content">
+    <div id="detailContent"></div>
+    <button id="editBtn">編集</button>
+    <button id="deleteBtn" class="danger">削除</button>
+  </div>
+</div>
 
 <script src="script.js"></script>
 </body>

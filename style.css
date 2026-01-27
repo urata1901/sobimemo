@@ -1,204 +1,126 @@
-/* 全体 */
 body {
+  font-family: -apple-system;
   margin: 0;
-  font-family: sans-serif;
-  background: #f4f4f4;
+  background: #f2f2f7;
 }
 
 header {
-  background: #333;
-  color: white;
+  background: #fff;
   padding: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  align-items: center;
 }
 
-header button,
-header select,
-.search {
-  margin-left: 4px;
-}
-
-.search {
-  width: 100%;
-  padding: 6px;
-  margin-bottom: 10px;
-}
-
-/* フォルダブロック */
-.folder-block {
-  background: #eaeaea;
-  padding: 6px;
-  margin-bottom: 12px;
-  border-radius: 6px;
-}
-
-.folder-header {
-  font-weight: bold;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.folder-header button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-/* キャラカード */
-.character-card {
+.income-area {
   display: flex;
   gap: 10px;
-  background: white;
-  padding: 8px;
   margin-bottom: 8px;
-  align-items: flex-start;
-  position: relative;
-  cursor: pointer;
 }
 
-.character-card img,
-.no-image {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  background: #ccc;
+.income-box {
+  flex: 1;
+  background: #e5f0ff;
+  border-radius: 12px;
+  padding: 10px;
 }
 
-.character-info {
-  display: flex;
-  flex-direction: column;
+.income-box.readonly {
+  background: #f0f0f0;
 }
 
-.character-title {
+.income-label {
+  font-size: 11px;
+  color: #555;
+}
+
+.income-value {
+  font-size: 20px;
   font-weight: bold;
-  margin-bottom: 4px;
 }
 
-/* 装備セット */
-.home-equipment-row,
-#detailEquipment {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.home-equipment-set,
-#detailEquipment .home-equipment-set {
-  border: 1px solid #ccc;
-  padding: 6px;
-  min-width: 120px;
-  background: #fafafa;
-  display: flex;
-  flex-direction: column;
-}
-
-.home-equipment-set span {
-  margin-top: 2px;
-  background: #eee;
-  padding: 2px 4px;
-  border-radius: 4px;
+.income-unit {
   font-size: 12px;
 }
 
-/* 選択モード */
-.select-mode-buttons {
-  display: none;
+.calendar-header {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  font-size: 12px;
+  text-align: center;
+  color: #666;
   margin-top: 6px;
 }
 
-body.select-mode-active .select-mode-buttons {
-  display: inline-block;
+#calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  padding: 6px;
 }
 
-.character-card.selected {
-  border: 3px solid black;
-}
-
-/* カード内編集・削除ボタン */
-.character-card .card-actions {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  display: flex;
-  gap: 4px;
-}
-
-.character-card .card-actions button {
-  background: #333;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 2px 6px;
-  cursor: pointer;
+.day {
+  background: #fff;
+  border-radius: 8px;
+  padding: 4px;
+  min-height: 80px;
   font-size: 12px;
 }
 
-/* モーダル */
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  justify-content: center;
-  align-items: center;
-  overflow: auto;
+.today {
+  border: 2px solid #007aff;
 }
 
-.modal.active {
+.event {
+  background: #ffd966;
+  border-radius: 4px;
+  padding: 2px;
+  margin-top: 2px;
+  font-size: 10px;
+}
+
+button {
+  background: #007aff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+.danger {
+  background: #ff3b30;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
   display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .modal-content {
   background: white;
+  border-radius: 14px;
   padding: 15px;
-  width: 95%;
-  max-width: 420px;
+  width: 90%;
 }
 
-.actions {
-  margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
+.scroll {
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
-/* 装備セット追加 */
-.equipment-set {
-  border: 1px solid #ccc;
-  padding: 6px;
+.hidden {
+  display: none;
+}
+
+input, textarea {
+  width: 100%;
   margin-bottom: 8px;
-}
-
-.equipment-set input {
-  display: block;
-  margin-bottom: 4px;
-}
-
-/* キャラ詳細モーダル */
-.detail-image {
-  width: 30%;
-  max-width: 30%; /* 中サイズに制限 */
-  aspect-ratio: 1 / 1; /* 正方形 */
-  object-fit: cover;
-  margin-bottom: 8px;
-}
-
-#detailEquipment {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-#detailEquipment .home-equipment-set {
-  min-width: 120px;
-  border: 1px solid #ccc;
-  padding: 6px;
-  background: #fafafa;
-  display: flex;
-  flex-direction: column;
 }
